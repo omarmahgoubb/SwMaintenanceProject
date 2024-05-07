@@ -38,7 +38,7 @@ public class Card implements Events, Cloneable
     private int      level;
 
     // content
-    private CardSide m_frontSide = new CardSide();
+    private CardSide frontSide = new CardSide();
     private CardSide m_backSide  = new CardSide();
     
     // dates
@@ -86,7 +86,7 @@ public class Card implements Events, Cloneable
         m_dateModified = cloneDate(created);
         m_dateTouched = cloneDate(created);
 
-        m_frontSide = frontSide;
+        frontSide = frontSide;
         m_backSide = backSide;
         
         attachCardSideObservers();
@@ -111,13 +111,13 @@ public class Card implements Events, Cloneable
     public void setSides(FormattedText front, FormattedText back) 
         throws IllegalArgumentException
     {
-        if (front.equals(m_frontSide.getText()) && 
+        if (front.equals(frontSide.getText()) && 
             back.equals(m_backSide.getText()))
         {
             return;
         }
         
-        m_frontSide.setText(front);
+        frontSide.setText(front);
         m_backSide.setText(back);
         
         if (m_category != null)
@@ -199,7 +199,7 @@ public class Card implements Events, Cloneable
 
     public CardSide getFrontSide()
     {
-        return m_frontSide;
+        return frontSide;
     }
 
     public CardSide getBackSide()
@@ -399,7 +399,7 @@ public class Card implements Events, Cloneable
         try
         {
             card = (Card)super.clone();
-            card.m_frontSide = (CardSide)m_frontSide.clone();
+            card.frontSide = (CardSide)frontSide.clone();
             card.m_backSide = (CardSide)m_backSide.clone();
             
             card.m_dateCreated = cloneDate(m_dateCreated);
@@ -429,7 +429,7 @@ public class Card implements Events, Cloneable
         try
         {
             return new Card(m_dateCreated, 
-                (CardSide)m_frontSide.clone(), (CardSide)m_backSide.clone());
+                (CardSide)frontSide.clone(), (CardSide)m_backSide.clone());
         }
         catch (CloneNotSupportedException e)
         {
@@ -443,7 +443,7 @@ public class Card implements Events, Cloneable
      */
     public String toString()
     {
-        return "("+m_frontSide+"/"+m_backSide+")";
+        return "("+frontSide+"/"+m_backSide+")";
     }
     
     private void attachCardSideObservers()
@@ -465,7 +465,7 @@ public class Card implements Events, Cloneable
             }
         };
         
-        m_frontSide.addObserver(observer);
+        frontSide.addObserver(observer);
         m_backSide.addObserver(observer);
     }
 
