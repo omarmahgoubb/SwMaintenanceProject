@@ -35,7 +35,7 @@ public class Card implements Events, Cloneable
     public static final boolean CLONE_DATES = Main.isDevel();
 
     private Category m_category;
-    private int      m_level;
+    private int      level;
 
     // content
     private CardSide m_frontSide = new CardSide();
@@ -123,7 +123,7 @@ public class Card implements Events, Cloneable
         if (m_category != null)
         {
             m_dateModified = new Date();
-            m_category.fireCardEvent(EDITED_EVENT, this, getCategory(), m_level);
+            m_category.fireCardEvent(EDITED_EVENT, this, getCategory(), level);
         }
     }
     
@@ -169,7 +169,7 @@ public class Card implements Events, Cloneable
 
         if (m_category != null)
         {
-            m_category.fireCardEvent(DECK_EVENT, this, getCategory(), m_level);
+            m_category.fireCardEvent(DECK_EVENT, this, getCategory(), level);
         }
     }
 
@@ -379,7 +379,7 @@ public class Card implements Events, Cloneable
      */
     public int getLevel()
     {
-        return m_level;
+        return level;
     }
 
     /**
@@ -387,7 +387,7 @@ public class Card implements Events, Cloneable
      */
     protected void setLevel(int level)
     {
-        m_level = level;
+        level = level;
     }
 
     /* (non-Javadoc)
@@ -454,7 +454,7 @@ public class Card implements Events, Cloneable
                 if (m_category != null)
                 {
                     m_dateModified = new Date();
-                    m_category.fireCardEvent(EDITED_EVENT, Card.this, getCategory(), m_level);
+                    m_category.fireCardEvent(EDITED_EVENT, Card.this, getCategory(), level);
                 }
             }
 
