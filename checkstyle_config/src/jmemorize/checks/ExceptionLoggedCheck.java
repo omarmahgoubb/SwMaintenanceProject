@@ -58,48 +58,126 @@ public class ExceptionLoggedCheck extends Check
         mRegExp = Utils.getPattern(mReliefPattern);   
     }
 
-    public void finishTree(DetailAST arg0)
-    {
-        assert catchDepth == 0;
+//    public void finishTree(DetailAST arg0)
+//    {
+//        assert catchDepth == 0;
+//    }
+//
+//    public void visitToken(DetailAST ast)
+//    {
+//        if (ast.getType() == TokenTypes.LITERAL_CATCH) {
+//            // found the catch, init the state data and check for the fallthrough
+//            catchDepth++;
+//            assert catchDepth > 0;
+//            if (catchDepth == 1) {
+//                clearCatchState();
+//                catchLineNo = ast.getLineNo();
+//            } else {
+//                log(ast.getLineNo(), "Dubious coding: Nested Catch clauses");
+//            }
+//        } else if (ast.getType() == TokenTypes.RCURLY && catchDepth == 1) {
+//            lastRCurly = ast.getLineNo();
+//        } else if (ast.getType() == TokenTypes.LITERAL_THROW &&
+//            catchDepth == 1) {
+//            hasThrow = true;
+//        } else if (ast.getType() == TokenTypes.LITERAL_ASSERT &&
+//            catchDepth == 1) {
+//            DetailAST childAst = ast.findFirstToken(TokenTypes.EXPR);
+//            if (childAst != null || childAst.getNumberOfChildren() == 1) {
+//                DetailAST grandchildAst = childAst.findFirstToken(TokenTypes.LITERAL_FALSE);
+//                if (grandchildAst != null) {
+//                    hasAssert = true;
+//                }
+//            }
+//        } else if (ast.getType() == TokenTypes.METHOD_CALL &&
+//            catchDepth == 1) {
+//            // look for a call whose name ends in logger.severe
+//            String callText = FullIdent.createFullIdentBelow(ast).getText();
+//            //log(ast.getLineNo(), "catch method call " + callText);
+//            if ( callText.toLowerCase().endsWith("logger.severe") ||
+//                callText.endsWith("logThrowable") ) {
+//                hasLogCall = true;
+//            }
+//        }
+//    }
+
+    public void visitToken(DetailAST ast) {
+        if (isCatchToken(ast)) {
+            handleCatchToken(ast);
+        } else if (isLastRCurlyToken(ast)) {
+            handleLastRCurlyToken(ast);
+        } else if (isThrowToken(ast)) {
+            handleThrowToken();
+        } else if (isAssertToken(ast)) {
+            handleAssertToken(ast);
+        } else if (isMethodCallToken(ast)) {
+            handleMethodCallToken(ast);
+        }
     }
 
-    public void visitToken(DetailAST ast)
-    {
-        if (ast.getType() == TokenTypes.LITERAL_CATCH) {
-            // found the catch, init the state data and check for the fallthrough
-            catchDepth++;
-            assert catchDepth > 0;
-            if (catchDepth == 1) {
-                clearCatchState();
-                catchLineNo = ast.getLineNo();
-            } else {
-                log(ast.getLineNo(), "Dubious coding: Nested Catch clauses");                
-            }
-        } else if (ast.getType() == TokenTypes.RCURLY && catchDepth == 1) {
-            lastRCurly = ast.getLineNo();
-        } else if (ast.getType() == TokenTypes.LITERAL_THROW &&
-            catchDepth == 1) {
-            hasThrow = true;        
-        } else if (ast.getType() == TokenTypes.LITERAL_ASSERT &&
-            catchDepth == 1) {
-            DetailAST childAst = ast.findFirstToken(TokenTypes.EXPR);
-            if (childAst != null || childAst.getNumberOfChildren() == 1) {
-                DetailAST grandchildAst = childAst.findFirstToken(TokenTypes.LITERAL_FALSE);
-                if (grandchildAst != null) {
-                    hasAssert = true;                            
-                }
-            }
-        } else if (ast.getType() == TokenTypes.METHOD_CALL &&
-            catchDepth == 1) {
-            // look for a call whose name ends in logger.severe
-            String callText = FullIdent.createFullIdentBelow(ast).getText();
-            //log(ast.getLineNo(), "catch method call " + callText);                
-            if ( callText.toLowerCase().endsWith("logger.severe") || 
-                callText.endsWith("logThrowable") ) { 
-                hasLogCall = true;
-            }
-        } 
+    private boolean isCatchToken(DetailAST ast) {
+        return ast.getType() == TokenTypes.LITERAL_CATCH;
     }
+
+    private void handleCatchToken(DetailAST ast) {
+        catchDepth++;
+        assert catchDepth > 0;
+
+        if (catchDepth == 1) {
+            clearCatchState();
+            catchLineNo = ast.getLineNo();
+        } else {
+            log(ast.getLineNo(), "Dubious coding: Nested Catch clauses");
+        }
+    }
+
+    private boolean isLastRCurlyToken(DetailAST ast) {
+        return ast.getType() == TokenTypes.RCURLY && catchDepth == 1;
+    }
+
+    private void handleLastRCurlyToken(DetailAST ast) {
+        lastRCurly = ast.getLineNo();
+    }
+
+    private boolean isThrowToken(DetailAST ast) {
+        return ast.getType() == TokenTypes.LITERAL_THROW && catchDepth == 1;
+    }
+
+    private void handleThrowToken() {
+        hasThrow = true;
+    }
+
+    private boolean isAssertToken(DetailAST ast) {
+        return ast.getType() == TokenTypes.LITERAL_ASSERT && catchDepth == 1;
+    }
+
+    private void handleAssertToken(DetailAST ast) {
+        DetailAST childAst = ast.findFirstToken(TokenTypes.EXPR);
+
+        if (childAst != null || childAst.getNumberOfChildren() == 1) {
+            DetailAST grandchildAst = childAst.findFirstToken(TokenTypes.LITERAL_FALSE);
+
+            if (grandchildAst != null) {
+                hasAssert = true;
+            }
+        }
+    }
+
+    private boolean isMethodCallToken(DetailAST ast) {
+        return ast.getType() == TokenTypes.METHOD_CALL && catchDepth == 1;
+    }
+
+    private void handleMethodCallToken(DetailAST ast) {
+        String callText = FullIdent.createFullIdentBelow(ast).getText();
+
+        if (callText.toLowerCase().endsWith("logger.severe") || callText.endsWith("logThrowable")) {
+            hasLogCall = true;
+        }
+    }
+
+//    private void log(int lineNo, String message) {
+//        // Implementation of log
+//    }
 
     /**
      *   This function borrowed directly from checkstyle:FallThrough
