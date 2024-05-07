@@ -49,7 +49,7 @@ import jmemorize.util.NaturalOrderComparator;
 public class Category implements Events
 {
     // TODO use CopyOnWriteArrayList in Java1.5
-    private List<CategoryObserver> m_observers       = new ArrayList<CategoryObserver>();
+    private List<CategoryObserver> observers       = new ArrayList<CategoryObserver>();
 
     private String                 m_name;
     private int                    m_depth           = 0;                     // is 0 for root category
@@ -557,12 +557,12 @@ public class Category implements Events
     
     public void addObserver(CategoryObserver observer)
     {
-        m_observers.add(observer);
+        observers.add(observer);
     }
     
     public void removeObserver(CategoryObserver observer)
     {
-        m_observers.remove(observer);
+        observers.remove(observer);
     }
     
     /**
@@ -602,7 +602,7 @@ public class Category implements Events
             m_parent.fireCardEvent(type, card, category, deck);
         }
         
-        List<CategoryObserver> observersCopy = new ArrayList<CategoryObserver>(m_observers);
+        List<CategoryObserver> observersCopy = new ArrayList<CategoryObserver>(observers);
         for (CategoryObserver observer : observersCopy)
         {
             observer.onCardEvent(type, card, category, deck);
@@ -618,7 +618,7 @@ public class Category implements Events
             m_parent.fireCategoryEvent(type, category);
         }
         
-        List<CategoryObserver> observersCopy = new ArrayList<CategoryObserver>(m_observers);
+        List<CategoryObserver> observersCopy = new ArrayList<CategoryObserver>(observers);
         for (CategoryObserver observer : observersCopy)
         {
             observer.onCategoryEvent(type, category);
